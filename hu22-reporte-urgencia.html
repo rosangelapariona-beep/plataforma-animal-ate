@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reporte Ciudadano – Plataforma Animal Ate</title>
+<style>
+  :root {
+    --green-50: #EAF3DE; --green-100: #C0DD97; --green-600: #3B6D11; --green-800: #27500A;
+    --teal-50: #E1F5EE; --teal-600: #0F6E56; --teal-800: #085041;
+    --amber-50: #FAEEDA; --amber-400: #BA7517; --amber-800: #633806;
+    --red-50: #FCEBEB; --red-600: #A32D2D; --red-800: #791F1F;
+    --gray-50: #F1EFE8; --gray-100: #D3D1C7; --gray-600: #5F5E5A; --gray-800: #444441;
+    --blue-50: #E6F1FB; --blue-600: #185FA5; --blue-800: #0C447C;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, sans-serif; background: #f8faf6; color: #1a1a1a; min-height: 100vh; }
+
+  .hero { background: linear-gradient(135deg, #0F6E56 0%, #3B6D11 100%); padding: 2rem 1.5rem 1.5rem; text-align: center; color: white; }
+  .hero-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+  .hero h1 { font-size: 1.4rem; font-weight: 600; margin-bottom: 0.25rem; }
+  .hero p { font-size: 0.85rem; opacity: 0.85; }
+
+  .container { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+
+  .section-title { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gray-600); margin: 1.5rem 0 0.75rem; }
+
+  .form-card { background: white; border-radius: 12px; border: 0.5px solid #d0d0c8; padding: 1.25rem; margin-bottom: 1rem; }
+
+  label { display: block; font-size: 0.8rem; font-weight: 500; color: #333; margin-bottom: 0.35rem; }
+  input[type="text"], input[type="email"], input[type="tel"], select, textarea {
+    width: 100%; padding: 0.6rem 0.75rem; border: 0.5px solid #ccc; border-radius: 8px;
+    font-size: 0.875rem; background: #fafafa; color: #1a1a1a; outline: none;
+    transition: border-color 0.15s;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--teal-600); background: white; }
+  textarea { resize: vertical; min-height: 90px; }
+  .field-group { margin-bottom: 1rem; }
+  .field-group:last-child { margin-bottom: 0; }
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+  .ai-badge { display: inline-flex; align-items: center; gap: 4px; background: var(--blue-50); color: var(--blue-800); font-size: 0.7rem; font-weight: 600; padding: 3px 8px; border-radius: 20px; margin-left: 6px; }
+
+  .priority-preview { display: none; margin-top: 0.75rem; border-radius: 8px; padding: 0.75rem 1rem; border: 0.5px solid; }
+  .priority-preview.visible { display: flex; align-items: flex-start; gap: 0.75rem; }
+  .priority-icon { font-size: 1.4rem; flex-shrink: 0; margin-top: 2px; }
+  .priority-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+  .priority-desc { font-size: 0.8rem; margin-top: 2px; line-height: 1.4; }
+
+  .p-critico { background: var(--red-50); border-color: #e24b4a; color: var(--red-800); }
+  .p-urgente { background: #FFF3E0; border-color: #EF9F27; color: var(--amber-800); }
+  .p-moderado { background: var(--blue-50); border-color: #185FA5; color: var(--blue-800); }
+  .p-informativo { background: var(--green-50); border-color: var(--green-600); color: var(--green-800); }
+
+  .analyzing { display: none; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--gray-600); margin-top: 0.75rem; padding: 0.6rem 1rem; background: var(--gray-50); border-radius: 8px; }
+  .analyzing.visible { display: flex; }
+  .dot-pulse { display: flex; gap: 4px; }
+  .dot-pulse span { width: 6px; height: 6px; background: var(--teal-600); border-radius: 50%; animation: pulse 1.2s infinite; }
+  .dot-pulse span:nth-child(2) { animation-delay: 0.2s; }
+  .dot-pulse span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes pulse { 0%,80%,100% { opacity: 0.2; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }
+
+  .tip { font-size: 0.72rem; color: var(--gray-600); margin-top: 0.35rem; line-height: 1.4; }
+
+  .submit-btn {
+    width: 100%; padding: 0.9rem; background: var(--teal-600); color: white;
+    border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 600;
+    cursor: pointer; transition: background 0.15s, transform 0.1s; margin-top: 0.5rem;
+  }
+  .submit-btn:hover { background: var(--teal-800); }
+  .submit-btn:active { transform: scale(0.98); }
+  .submit-btn:disabled { background: var(--gray-100); color: var(--gray-600); cursor: not-allowed; }
+
+  .success-card { display: none; background: white; border-radius: 12px; border: 0.5px solid var(--green-100); padding: 2rem 1.5rem; text-align: center; }
+  .success-card.visible { display: block; }
+  .success-icon { font-size: 3rem; margin-bottom: 1rem; }
+  .success-title { font-size: 1.1rem; font-weight: 600; color: var(--teal-800); margin-bottom: 0.5rem; }
+  .success-desc { font-size: 0.85rem; color: var(--gray-600); line-height: 1.5; }
+  .case-number { display: inline-block; background: var(--teal-50, #E1F5EE); color: var(--teal-800); font-family: monospace; font-size: 1rem; font-weight: 700; padding: 0.4rem 1rem; border-radius: 8px; margin: 0.75rem 0; }
+  .priority-badge { display: inline-block; padding: 0.3rem 0.9rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+
+  .privacy-note { font-size: 0.72rem; color: var(--gray-600); text-align: center; margin-top: 1rem; line-height: 1.5; padding: 0 1rem; }
+  .privacy-note strong { color: #333; }
+
+  .char-count { font-size: 0.7rem; color: var(--gray-600); text-align: right; margin-top: 2px; }
+
+  .upload-zone {
+    border: 1.5px dashed #b0c8b0; border-radius: 10px; padding: 1.25rem 1rem;
+    text-align: center; background: #f4faf4; cursor: pointer;
+    transition: border-color 0.15s, background 0.15s; position: relative;
+  }
+  .upload-zone:hover, .upload-zone.dragover { border-color: var(--teal-600); background: var(--teal-50, #E1F5EE); }
+  .upload-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .upload-icon { font-size: 2rem; margin-bottom: 0.4rem; }
+  .upload-label { font-size: 0.82rem; font-weight: 500; color: var(--teal-800); }
+  .upload-sub { font-size: 0.72rem; color: var(--gray-600); margin-top: 2px; }
+
+  .media-previews { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 0.75rem; }
+  .media-thumb {
+    position: relative; width: 80px; height: 80px; border-radius: 8px;
+    overflow: hidden; border: 0.5px solid #ccc; background: #eee; flex-shrink: 0;
+  }
+  .media-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .media-thumb .thumb-video {
+    width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+    background: #1a1a2e; color: white; font-size: 1.5rem;
+  }
+  .media-thumb .thumb-remove {
+    position: absolute; top: 3px; right: 3px; width: 18px; height: 18px;
+    background: rgba(0,0,0,0.65); color: white; border-radius: 50%; border: none;
+    cursor: pointer; font-size: 10px; display: flex; align-items: center; justify-content: center;
+    line-height: 1;
+  }
+  .media-thumb .thumb-name {
+    position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.5);
+    color: white; font-size: 9px; padding: 2px 4px; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+  }
+  .upload-error { font-size: 0.75rem; color: var(--red-600); margin-top: 0.4rem; display: none; }
+  .upload-error.visible { display: block; }
+  .upload-progress { font-size: 0.75rem; color: var(--teal-600); margin-top: 0.4rem; display: none; }
+  .upload-progress.visible { display: flex; align-items: center; gap: 6px; }
+
+  @media (max-width: 480px) { .row-2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-icon">🐾</div>
+  <h1>Reportar caso animal</h1>
+  <p>Municipalidad de Ate · Plataforma de Protección Animal</p>
+</div>
+
+<div class="container">
+
+  <div id="form-section">
+    <p class="section-title">Datos del reporte</p>
+    <div class="form-card">
+      <div class="field-group">
+        <label for="tipo">Tipo de situación</label>
+        <select id="tipo">
+          <option value="">Selecciona una categoría…</option>
+          <option value="animal herido">Animal herido o enfermo</option>
+          <option value="animal en riesgo">Animal en riesgo (tráfico, caída, trampa)</option>
+          <option value="maltrato animal">Maltrato o abuso animal</option>
+          <option value="animal abandonado">Animal abandonado</option>
+          <option value="colonia de animales">Colonia de animales sin control</option>
+          <option value="animal agresivo">Animal agresivo o peligroso</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label for="descripcion">
+          Descripción del caso
+          <span class="ai-badge">🤖 IA analiza gravedad</span>
+        </label>
+        <textarea id="descripcion" placeholder="Describe lo que observaste con el mayor detalle posible: estado del animal, comportamiento, si hay heridas visibles, si está solo, etc." maxlength="600" oninput="onDescInput(this)"></textarea>
+        <div class="char-count"><span id="char-n">0</span>/600</div>
+        <div class="analyzing" id="analyzing-box">
+          <div class="dot-pulse"><span></span><span></span><span></span></div>
+          Analizando gravedad del caso…
+        </div>
+        <div class="priority-preview" id="priority-box">
+          <div class="priority-icon" id="p-icon"></div>
+          <div>
+            <div class="priority-label" id="p-label"></div>
+            <div class="priority-desc" id="p-desc"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="section-title">Ubicación</p>
+    <div class="form-card">
+      <div class="field-group row-2">
+        <div>
+          <label for="zona">Zona / Sector</label>
+          <select id="zona">
+            <option value="">Selecciona…</option>
+            <option>Ate Centro</option>
+            <option>Huaycán</option>
+            <option>Horacio Zevallos</option>
+            <option>Pariachi</option>
+            <option>Santa Clara</option>
+            <option>Salamanca</option>
+            <option>Mayorazgo</option>
+            <option>Vitarte</option>
+            <option>Otra zona de Ate</option>
+          </select>
+        </div>
+        <div>
+          <label for="referencia">Referencia cercana</label>
+          <input type="text" id="referencia" placeholder="Ej: parque, mercado, calle…">
+        </div>
+      </div>
+      <div class="field-group">
+        <label for="direccion">Dirección aproximada</label>
+        <input type="text" id="direccion" placeholder="Av. / Jr. / Psje. y número o referencia exacta">
+      </div>
+    </div>
+
+    <p class="section-title">Evidencia visual <span style="font-weight:400;text-transform:none;font-size:0.75rem;color:#888">(opcional – foto o video)</span></p>
+    <div class="form-card">
+      <div class="upload-zone" id="upload-zone" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+        <input type="file" id="media-input" accept="image/*,video/*" multiple onchange="onFilesSelected(this.files)">
+        <div class="upload-icon">📎</div>
+        <div class="upload-label">Arrastra archivos aquí o toca para seleccionar</div>
+        <div class="upload-sub">Fotos JPG/PNG · Videos MP4/MOV · Máx. 10 MB por archivo · Hasta 3 archivos</div>
+      </div>
+      <div class="upload-error" id="upload-error"></div>
+      <div class="upload-progress" id="upload-progress">
+        <div class="dot-pulse"><span></span><span></span><span></span></div>
+        <span id="upload-progress-text">Subiendo archivos…</span>
+      </div>
+      <div class="media-previews" id="media-previews"></div>
+      <p class="tip" style="margin-top:0.5rem;">Las imágenes y videos ayudan al equipo municipal a evaluar mejor la gravedad del caso.</p>
+    </div>
+
+    <p class="section-title">Datos del reportante <span style="font-weight:400;text-transform:none;font-size:0.75rem;color:#888">(opcionales – para seguimiento)</span></p>
+    <div class="form-card">
+      <div class="field-group row-2">
+        <div>
+          <label for="nombre">Nombre</label>
+          <input type="text" id="nombre" placeholder="Tu nombre">
+        </div>
+        <div>
+          <label for="telefono">Teléfono / WhatsApp</label>
+          <input type="tel" id="telefono" placeholder="9XXXXXXXX">
+        </div>
+      </div>
+      <p class="tip">Si dejas tu contacto, la municipalidad podrá comunicarse contigo para coordinar la atención del caso.</p>
+    </div>
+
+    <button class="submit-btn" id="submit-btn" onclick="enviarReporte()">Enviar reporte</button>
+    <p class="privacy-note"><strong>Confidencialidad:</strong> Los datos enviados son almacenados de forma segura en la base de datos interna de la Municipalidad de Ate y solo son accesibles por el personal autorizado.</p>
+  </div>
+
+  <div class="success-card" id="success-section">
+    <div class="success-icon">✅</div>
+    <div class="success-title">Reporte enviado exitosamente</div>
+    <div class="case-number" id="case-number">ATE-00000</div>
+    <div style="margin: 0.5rem 0 1rem;">
+      Prioridad detectada: <span class="priority-badge" id="success-priority-badge"></span>
+    </div>
+    <div class="success-desc" id="success-desc"></div>
+    <button style="margin-top:1.5rem; padding:0.65rem 1.5rem; border:0.5px solid #ccc; border-radius:8px; background:white; cursor:pointer; font-size:0.85rem;" onclick="nuevoReporte()">Enviar otro reporte</button>
+  </div>
+
+</div>
+
+<script>
+const APPS_SCRIPT_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
+const IMGBB_API_KEY = 'YOUR_IMGBB_API_KEY_HERE';
+
+let currentPriority = 'informativo';
+let analyzeTimer = null;
+let mediaFiles = [];
+let mediaURLs = [];
+
+function onDragOver(e) { e.preventDefault(); document.getElementById('upload-zone').classList.add('dragover'); }
+function onDragLeave(e) { document.getElementById('upload-zone').classList.remove('dragover'); }
+function onDrop(e) {
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.remove('dragover');
+  onFilesSelected(e.dataTransfer.files);
+}
+
+function onFilesSelected(files) {
+  const errEl = document.getElementById('upload-error');
+  errEl.className = 'upload-error';
+  const allowed = ['image/jpeg','image/png','image/webp','image/gif','video/mp4','video/quicktime','video/webm'];
+  const maxSize = 10 * 1024 * 1024;
+  const newFiles = Array.from(files);
+
+  if (mediaFiles.length + newFiles.length > 3) {
+    errEl.textContent = 'Máximo 3 archivos por reporte.';
+    errEl.className = 'upload-error visible'; return;
+  }
+  for (const f of newFiles) {
+    if (!allowed.includes(f.type)) {
+      errEl.textContent = `"${f.name}" no es un formato válido. Usa JPG, PNG, MP4 o MOV.`;
+      errEl.className = 'upload-error visible'; return;
+    }
+    if (f.size > maxSize) {
+      errEl.textContent = `"${f.name}" supera el límite de 10 MB.`;
+      errEl.className = 'upload-error visible'; return;
+    }
+  }
+  mediaFiles = [...mediaFiles, ...newFiles];
+  renderPreviews();
+  document.getElementById('media-input').value = '';
+}
+
+function removeFile(idx) {
+  mediaFiles.splice(idx, 1);
+  mediaURLs.splice(idx, 1);
+  renderPreviews();
+}
+
+function renderPreviews() {
+  const container = document.getElementById('media-previews');
+  container.innerHTML = '';
+  mediaFiles.forEach((f, i) => {
+    const thumb = document.createElement('div');
+    thumb.className = 'media-thumb';
+    if (f.type.startsWith('image/')) {
+      const url = URL.createObjectURL(f);
+      thumb.innerHTML = `<img src="${url}" alt="preview"><button class="thumb-remove" onclick="removeFile(${i})">✕</button><div class="thumb-name">${f.name}</div>`;
+    } else {
+      thumb.innerHTML = `<div class="thumb-video">▶</div><button class="thumb-remove" onclick="removeFile(${i})">✕</button><div class="thumb-name">${f.name}</div>`;
+    }
+    container.appendChild(thumb);
+  });
+  const zone = document.getElementById('upload-zone');
+  zone.style.display = mediaFiles.length >= 3 ? 'none' : '';
+}
+
+async function uploadToImgBB(file) {
+  const b64 = await new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result.split(',')[1]);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+  const fd = new FormData();
+  fd.append('key', IMGBB_API_KEY);
+  fd.append('image', b64);
+  const resp = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: fd });
+  const json = await resp.json();
+  return json.data?.url || null;
+}
+
+async function subirArchivos() {
+  if (mediaFiles.length === 0) return [];
+  const progEl = document.getElementById('upload-progress');
+  const progTxt = document.getElementById('upload-progress-text');
+  progEl.className = 'upload-progress visible';
+  const urls = [];
+  for (let i = 0; i < mediaFiles.length; i++) {
+    progTxt.textContent = `Subiendo archivo ${i + 1} de ${mediaFiles.length}…`;
+    try {
+      const url = await uploadToImgBB(mediaFiles[i]);
+      if (url) urls.push(url);
+    } catch(e) { urls.push('error al subir'); }
+  }
+  progEl.className = 'upload-progress';
+  return urls;
+}
+
+function onDescInput(el) {
+  document.getElementById('char-n').textContent = el.value.length;
+  clearTimeout(analyzeTimer);
+  hidePriority();
+  if (el.value.trim().length < 15) return;
+  analyzeTimer = setTimeout(() => analyzeWithAI(el.value.trim()), 900);
+}
+
+function hidePriority() {
+  document.getElementById('priority-box').className = 'priority-preview';
+  document.getElementById('analyzing-box').className = 'analyzing';
+}
+
+async function analyzeWithAI(texto) {
+  document.getElementById('analyzing-box').className = 'analyzing visible';
+  document.getElementById('priority-box').className = 'priority-preview';
+
+  const tipo = document.getElementById('tipo').value;
+  const prompt = `Eres el sistema de triage de la Municipalidad de Ate para casos de bienestar animal. Analiza el siguiente reporte ciudadano y clasifica su nivel de urgencia.
+
+Categoría seleccionada: "${tipo || 'sin especificar'}"
+Descripción del reportante: "${texto}"
+
+Clasifica en UNO de estos niveles:
+- CRITICO: Animal en peligro inmediato de muerte, herido grave, atrapado o situación que requiere respuesta en menos de 2 horas
+- URGENTE: Animal en riesgo moderado, enfermo, maltratado activamente o en riesgo de empeorar en horas
+- MODERADO: Situación preocupante que requiere atención pronto pero no inmediata (1-3 días)
+- INFORMATIVO: Observación o reporte de seguimiento sin urgencia inmediata
+
+Responde SOLO con este JSON exacto (sin markdown, sin texto adicional):
+{"nivel":"CRITICO|URGENTE|MODERADO|INFORMATIVO","razon":"Una frase corta de máximo 12 palabras explicando por qué"}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 120,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const raw = data.content.map(c => c.text || '').join('').trim();
+    const parsed = JSON.parse(raw.replace(/```json|```/g, '').trim());
+    showPriority(parsed.nivel, parsed.razon);
+  } catch(e) {
+    document.getElementById('analyzing-box').className = 'analyzing';
+  }
+}
+
+const PRIORITY_CONFIG = {
+  CRITICO:    { cls: 'p-critico',    icon: '🔴', label: 'Crítico – Atención inmediata',  desc: null },
+  URGENTE:    { cls: 'p-urgente',    icon: '🟠', label: 'Urgente – Atención prioritaria', desc: null },
+  MODERADO:   { cls: 'p-moderado',   icon: '🔵', label: 'Moderado – Atención regular',   desc: null },
+  INFORMATIVO:{ cls: 'p-informativo',icon: '🟢', label: 'Informativo – Sin urgencia',    desc: null }
+};
+
+function showPriority(nivel, razon) {
+  currentPriority = nivel;
+  document.getElementById('analyzing-box').className = 'analyzing';
+  const cfg = PRIORITY_CONFIG[nivel] || PRIORITY_CONFIG['INFORMATIVO'];
+  const box = document.getElementById('priority-box');
+  box.className = 'priority-preview visible ' + cfg.cls;
+  document.getElementById('p-icon').textContent = cfg.icon;
+  document.getElementById('p-label').textContent = cfg.label;
+  document.getElementById('p-desc').textContent = razon;
+}
+
+function generarCodigo() {
+  const ts = Date.now().toString().slice(-5);
+  return 'ATE-' + ts;
+}
+
+async function enviarReporte() {
+  const descripcion = document.getElementById('descripcion').value.trim();
+  const tipo = document.getElementById('tipo').value;
+  const zona = document.getElementById('zona').value;
+  const referencia = document.getElementById('referencia').value.trim();
+  const direccion = document.getElementById('direccion').value.trim();
+
+  if (!tipo) { alert('Por favor selecciona el tipo de situación.'); return; }
+  if (descripcion.length < 15) { alert('Por favor describe el caso con más detalle.'); return; }
+  if (!zona) { alert('Por favor selecciona la zona del distrito.'); return; }
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Subiendo archivos…';
+
+  const archivosURL = await subirArchivos();
+
+  btn.textContent = 'Enviando reporte…';
+
+  const codigoCaso = generarCodigo();
+  const fechaHora = new Date().toLocaleString('es-PE', { timeZone: 'America/Lima' });
+  const nombre = document.getElementById('nombre').value.trim() || 'Anónimo';
+  const telefono = document.getElementById('telefono').value.trim() || '—';
+
+  const payload = {
+    codigo: codigoCaso,
+    fecha: fechaHora,
+    tipo,
+    descripcion,
+    zona,
+    referencia: referencia || '—',
+    direccion: direccion || '—',
+    prioridad: currentPriority,
+    nombre,
+    telefono,
+    archivos: archivosURL.join(' | ') || '—'
+  };
+
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+  } catch(e) { /* no-cors silencia el error */ }
+
+  mostrarExito(codigoCaso, currentPriority);
+}
+
+const PRIORIDAD_STYLES = {
+  CRITICO:    { bg:'#FCEBEB', color:'#791F1F', text:'🔴 Crítico' },
+  URGENTE:    { bg:'#FFF3E0', color:'#633806', text:'🟠 Urgente' },
+  MODERADO:   { bg:'#E6F1FB', color:'#0C447C', text:'🔵 Moderado' },
+  INFORMATIVO:{ bg:'#EAF3DE', color:'#27500A', text:'🟢 Informativo' }
+};
+
+const PRIORIDAD_MSG = {
+  CRITICO:    'Tu reporte ha sido marcado como CRÍTICO. El equipo municipal lo revisará en las próximas 2 horas. Guarda tu número de caso.',
+  URGENTE:    'Tu reporte ha sido marcado como URGENTE. El personal municipal lo atenderá en las próximas horas.',
+  MODERADO:   'Tu reporte ha sido registrado. El equipo lo revisará en los próximos 1 a 3 días.',
+  INFORMATIVO:'Tu reporte ha sido registrado. Será revisado por el equipo municipal en el orden de la cola.'
+};
+
+function mostrarExito(codigo, prioridad) {
+  document.getElementById('form-section').style.display = 'none';
+  const sc = document.getElementById('success-section');
+  sc.className = 'success-card visible';
+  document.getElementById('case-number').textContent = codigo;
+
+  const s = PRIORIDAD_STYLES[prioridad] || PRIORIDAD_STYLES['INFORMATIVO'];
+  const badge = document.getElementById('success-priority-badge');
+  badge.textContent = s.text;
+  badge.style.background = s.bg;
+  badge.style.color = s.color;
+
+  document.getElementById('success-desc').textContent = PRIORIDAD_MSG[prioridad] || PRIORIDAD_MSG['INFORMATIVO'];
+}
+
+function nuevoReporte() {
+  document.getElementById('form-section').style.display = 'block';
+  document.getElementById('success-section').className = 'success-card';
+  document.getElementById('descripcion').value = '';
+  document.getElementById('tipo').value = '';
+  document.getElementById('zona').value = '';
+  document.getElementById('referencia').value = '';
+  document.getElementById('direccion').value = '';
+  document.getElementById('nombre').value = '';
+  document.getElementById('telefono').value = '';
+  document.getElementById('char-n').textContent = '0';
+  mediaFiles = []; mediaURLs = [];
+  document.getElementById('media-previews').innerHTML = '';
+  document.getElementById('upload-zone').style.display = '';
+  document.getElementById('upload-error').className = 'upload-error';
+  hidePriority();
+  currentPriority = 'informativo';
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = false;
+  btn.textContent = 'Enviar reporte';
+}
+</script>
+</body>
+</html>
